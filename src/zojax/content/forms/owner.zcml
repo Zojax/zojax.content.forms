@@ -1,0 +1,25 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zcml="http://namespaces.zope.org/zcml"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   zcml:condition="installed zojax.principal.field"
+   i18n_domain="zojax.content.forms">
+
+  <zojax:pagelet
+     name="owner"
+     type="form.subform"
+     for="zojax.ownership.interfaces.IOwnerAware
+	  zojax.content.forms.interfaces.ISecurityStep"
+     class=".owner.OwnerInformation"
+     weight="1000000"
+     template="ownerinfo.pt"
+     provides="zojax.layoutform.interfaces.IPageletFormView"
+     permission="zojax.changeOwnership" />
+
+  <zojax:pagelet
+     name="changeowner.html"
+     for="zojax.content.forms.interfaces.ISecurityStep"
+     class=".owner.ChangeOwner"
+     permission="zojax.changeOwnership" />
+
+</configure>

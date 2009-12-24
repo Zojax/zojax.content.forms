@@ -1,0 +1,31 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   xmlns:browser="http://namespaces.zope.org/browser"
+   i18n_domain="zojax.content.forms">
+
+  <!-- simple add form for content type -->
+  <browser:page
+     name="index.html"
+     for="zojax.content.type.interfaces.IContentType"
+     class=".form.AddForm"
+     permission="zope.View" />
+
+  <zojax:pagelet
+     type="form.buttons"
+     template="formaddbuttons.pt"
+     for=".interfaces.IContentAddView"
+     permission="zope.Public" />
+
+  <adapter factory=".formvalidator.AddFormNameValidator" />
+
+  <!-- buttons for simple edit form -->
+  <zojax:pagelet
+     type="form.buttons"
+     template="formeditbuttons.pt"
+     for=".interfaces.IContentEditView"
+     permission="zope.Public" />
+
+  <adapter factory=".formvalidator.EditFormNameValidator" />
+
+</configure>

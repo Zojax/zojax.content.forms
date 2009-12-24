@@ -1,0 +1,75 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   xmlns:browser="http://namespaces.zope.org/browser"
+   i18n_domain="zojax.content.forms">
+
+  <!-- edit wizard -->
+  <include file="wizardedit.zcml" />
+
+  <!-- simple forms -->
+  <include file="form.zcml" />
+
+  <!-- content owner -->
+  <include file="owner.zcml" />
+
+  <!-- edit content step -->
+  <zojax:pagelet
+     name="view"
+     title="View"
+     type="wizard.step"
+     for="zojax.content.type.interfaces.IContent
+	  zojax.content.forms.interfaces.IEditContentWizard"
+     class=".contentview.ContentViewStep"
+     permission="zope.View"
+     weight="10" />
+
+  <!-- edit content step -->
+  <zojax:pagelet
+     name="content"
+     type="wizard.step"
+     for="zojax.content.type.interfaces.IContent
+	  zojax.content.forms.interfaces.IEditContentWizard"
+     class=".content.ContentStep"
+     permission="zojax.ModifyContent"
+     weight="100" />
+
+  <zojax:pagelet
+     name="basic"
+     type="form.subform"
+     for="zojax.content.type.interfaces.IContent
+	  zojax.content.forms.interfaces.IContentStep"
+     class=".content.ContentBasicFields"
+     weight="10" />
+
+  <!-- sharring step -->
+  <zojax:pagelet
+     name="security"
+     type="wizard.step"
+     for="zojax.content.type.interfaces.IContent
+	  zojax.content.forms.interfaces.IEditContentWizard"
+     class=".security.ContentSecurityStep"
+     permission="zojax.ModifyContent"
+     weight="200" />
+
+  <!-- content presentation step -->
+  <zojax:pagelet
+     name="presentation"
+     type="wizard.step"
+     for="zojax.content.type.interfaces.IContent
+	  zojax.content.forms.interfaces.IEditContentWizard"
+     class=".presentation.ContentPresentationStep"
+     permission="zojax.ModifyContent"
+     weight="300" />
+
+  <!-- publish step -->
+  <zojax:pagelet
+     name="publish"
+     type="wizard.step"
+     for="zojax.content.type.interfaces.IItemPublishing
+	  zojax.content.forms.interfaces.IEditContentWizard"
+     class=".publish.ContentPublishStep"
+     permission="zojax.ModifyContent"
+     weight="100000" />
+
+</configure>
