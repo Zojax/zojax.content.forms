@@ -1,0 +1,25 @@
+<div class="z-form-controls" i18n:domain="zojax.content.browser">
+  <hr />
+  <tal:block tal:condition="context/allowRename|nothing">
+    <div class="z-form-field" tal:define="error context/nameError"
+	 tal:attributes="class python:error and 'z-form-field error' or 'z-form-field'">
+      <label i18n:translate="" for="edit_input_name">Content short name</label>
+      <div tal:condition="error" tal:content="error">
+        The Error
+      </div>
+      <div class="z-form-help" i18n:translate="">
+	Should not contain spaces, underscores or mixed case. 
+	Short Name is part of the item's web address.
+      </div>
+      <div>
+	<input type="text" name="edit_input_name" id="edit_input_name"
+	       tal:attributes="value request/edit_input_name|context/__parent__/__name__" />
+      </div>
+    </div>
+  </tal:block>
+  
+  <span tal:condition="context/actions/values">
+    <input tal:repeat="action context/actions/values"
+	   tal:replace="structure action/render" />
+  </span>
+</div>

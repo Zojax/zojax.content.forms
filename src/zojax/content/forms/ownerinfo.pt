@@ -1,0 +1,6 @@
+<h2>Content owner</h2>
+<div class="z-form-fieldset" tal:define="owner view/getOwner">
+  Owner: <a href="changeowner.html" tal:content="owner/title"
+	    title="Change owner" i18n:attributes="title"></a>
+  <div tal:content="owner/desc" tal:condition="owner/desc" />
+</div>

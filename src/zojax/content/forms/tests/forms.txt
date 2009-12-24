@@ -1,0 +1,278 @@
+==============
+Add/Edit forms
+==============
+
+  >>> from zope import component, event, interface
+  >>> from zope.testbrowser.testing import Browser
+  >>> from zope.lifecycleevent import ObjectCreatedEvent
+  >>> from zope.app.testing.functional import getRootFolder
+  >>> from zojax.content.forms.tests import content
+  >>> from zojax.ownership.interfaces import IOwnership
+
+  >>> root = getRootFolder()
+  >>> container = content.Container('Container')
+  >>> event.notify(ObjectCreatedEvent(container))
+  >>> root['container'] = container
+  >>> IOwnership(container).ownerId = 'zope.user'
+
+  >>> actor = Browser()
+  >>> actor.addHeader("Authorization", "Basic user:userpw")
+  >>> actor.handleErrors = False
+
+
+Adding
+------
+
+  >>> actor.open("http://localhost/container/+/")
+  >>> print actor.contents
+  <html>
+  ...
+  <h2>Add new content</h2>
+  <div class="z-page-description">
+     Select the type of item you want to add to your container.</div>
+  <fieldset>
+    <legend>Available items</legend>
+    <ul class="z-listing">
+      <li class="even">
+        <div class="z-listing-icon">
+          <img src="..." alt="ContentType" width="16" height="16" border="0" />
+        </div>
+        <div>
+      	  <a href="http://localhost/container/+/content1/">Content 1</a>
+    	  <div class="byline">
+            &nbsp;
+          </div>
+        </div>
+      </li>
+      ...
+    </ul>
+    <div class="visualClear"></div>
+  </fieldset>
+  ...
+  </html>
+
+
+Cancel button
+-------------
+
+  >>> actor.getLink('Content 1').click()
+  >>> actor.getControl(name='content.add.buttons.cancel').click()
+  >>> actor.url
+  'http://localhost/container/'
+
+
+Error in form fields
+
+  >>> actor.open('http://localhost/container/+/')
+  >>> actor.getLink('Content 1').click()
+  >>> actor.getControl(name='content.add.widgets.title').value = u''
+  >>> actor.getControl('Content short name').value = 'content1'
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+  >>> print actor.contents
+  <html>
+  ...
+  ...<div class="statusWarningMessage">
+     Please fix indicated errors.
+  </div>
+  ...
+  </html>
+
+
+Add content
+-----------
+
+  >>> actor.getControl('Title').value = u'Test content'
+  >>> actor.getControl('URL').value = u'URL'
+  >>> actor.getControl('Content short name').value = 'content1'
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+  >>> print actor.contents
+  <html>
+  ...
+  ...<div class="z-content-body"><div>URL: URL</div></div>
+  ...
+  </html>
+
+
+We can't view add form if we don't have permission
+
+  >>> actor.open("http://localhost/container/+/container/")
+  Traceback (most recent call last):
+  ...
+  Unauthorized: ...
+
+  >>> actor.open("http://localhost/container/+/")
+
+If container select content name by itself we cant't define short name
+
+  >>> from zope.app.container.interfaces import IContainerNamesContainer
+  >>> interface.alsoProvides(container, IContainerNamesContainer)
+
+  >>> actor.getLink('Content 1').click()
+  >>> actor.getControl('Content short name')
+  Traceback (most recent call last):
+  ...
+  LookupError: label 'Content short name'
+
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+  >>> interface.noLongerProvides(container, IContainerNamesContainer)
+
+By default we can use blank for 'Content short name', but is container
+implements IEmptyNamesNotAllowed interface user will have enter
+content name explicitly
+
+  >>> from zojax.content.type.interfaces import IEmptyNamesNotAllowed
+  >>> interface.alsoProvides(container, IEmptyNamesNotAllowed)
+
+  >>> actor.open("http://localhost/container/+/")
+  >>> actor.getLink('Content 1').click()
+  >>> actor.getControl('Title').value = u'Test content'
+  >>> actor.getControl('URL').value = u'URL'
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+     Please fix indicated errors.
+  </div>...
+  ...
+  <label for="add_input_name">Content short name</label>
+    <div>An empty name was provided. Names cannot be empty.</div>
+  ...
+  </html>
+
+  >>> interface.noLongerProvides(container, IEmptyNamesNotAllowed)
+
+
+Edit Form
+=========
+
+
+Cancel button
+-------------
+
+  >>> actor.open("http://localhost/container/+/")
+  >>> actor.getLink('Content 2').click()
+  >>> actor.getControl('Title').value = u'Test content 2'
+  >>> actor.getControl('Content short name').value = 'content2'
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+  >>> actor.open("http://localhost/container/content2/edit.html")
+  >>> actor.getControl(name='form.buttons.cancel').click()
+  >>> actor.url
+  'http://localhost/container/content2/'
+
+
+Edit
+----
+
+No changes
+
+  >>> actor.open("http://localhost/container/content2/edit.html")
+  >>> actor.getControl(name='form.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusMessage">No changes were applied.</div>...
+  </html>
+
+Edit content
+
+  >>> actor.open("http://localhost/container/content2/edit.html")
+  >>> actor.getControl(name='form.widgets.title').value = u''
+  >>> actor.getControl(name='form.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+    Please fix indicated errors.
+  </div>
+  ...
+  <div class="z-form-field error">
+    <label for="form-widgets-title" title="Item title.">Title</label>
+       <span class="z-form-fieldRequired">&nbsp;</span>
+       <div class="error">Required input is missing.</div>
+  ...
+  </html>
+
+  >>> actor.open("http://localhost/container/content2/edit.html")
+  >>> actor.getControl(name='form.widgets.title').value = u'Test content 3'
+  >>> actor.getControl(name='form.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusMessage">Content has been successfully updated.</div>...
+  </html>
+
+  >>> actor.open("http://localhost/container/content2/")
+  >>> print actor.contents
+  <html>
+  ...
+  ...<h1 class="z-content-title">Test content 3</h1>...
+  ...
+  </html>
+
+
+Rename
+------
+
+  >>> actor.open("http://localhost/container/content2/edit.html")
+  >>> actor.getControl('Content short name').value = u'content10'
+  >>> actor.getControl(name='form.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusMessage">Content has been successfully updated.</div>...
+  </html>
+
+  >>> print actor.url
+  http://localhost/container/content10/
+
+  >>> actor.open("http://localhost/container/content10/edit.html")
+  >>> actor.getControl('Content short name').value = u'@cont$%#@ent10'
+  >>> actor.getControl(name='form.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+    Please fix indicated errors.
+  </div>
+  ...
+  <div class="z-form-field error">
+    <label for="edit_input_name">Content short name</label>
+       <div>Names cannot begin with '+' or '@' or contain '/'</div>
+       <div class="z-form-help">
+         Should not contain spaces, underscores or mixed case. 
+         Short Name is part of the item's web address.
+       </div>
+       <div>
+         <input type="text" name="edit_input_name"
+            id="edit_input_name" value="@cont$%#@ent10" />
+       </div>
+  </div>
+  ...
+  </html>
+
+  >>> from zojax.content.type.interfaces import IRenameNotAllowed
+  >>> interface.directlyProvides(
+  ...     root['container']['content10'], IRenameNotAllowed)
+
+  >>> actor.open("http://localhost/container/content10/edit.html")
+  >>> actor.getControl('Content short name')
+  Traceback (most recent call last):
+  ...
+  LookupError: label 'Content short name'
+
+  >>> interface.noLongerProvides(
+  ...     root['container']['content10'], IRenameNotAllowed)
+
+  >>> from zope.app.container.interfaces import IContainerNamesContainer
+  >>> interface.directlyProvides(root['container'], IContainerNamesContainer)
+
+  >>> actor.open("http://localhost/container/content10/edit.html")
+  >>> actor.getControl('Content short name')
+  Traceback (most recent call last):
+  ...
+  LookupError: label 'Content short name'
+
+  >>> actor.getControl('Title').value = u'Test content 3'
+  >>> actor.getControl(name='form.buttons.save').click()
+
+  >>> del root['container']

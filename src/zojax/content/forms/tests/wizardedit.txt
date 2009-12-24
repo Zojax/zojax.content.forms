@@ -1,0 +1,220 @@
+=========
+Edit form
+=========
+
+  >>> from zope import component, event, interface
+  >>> from zope.testbrowser.testing import Browser
+  >>> from zope.lifecycleevent import ObjectCreatedEvent
+  >>> from zope.app.testing.functional import getRootFolder
+  >>> from zojax.content.forms.tests import content
+  >>> from zojax.ownership.interfaces import IOwnership
+
+  >>> root = getRootFolder()
+  >>> container = content.Container('Container')
+  >>> event.notify(ObjectCreatedEvent(container))
+  >>> root['container'] = container
+  >>> IOwnership(container).ownerId = 'zope.user'
+
+  >>> actor = Browser()
+  >>> actor.addHeader("Authorization", "Basic user:userpw")
+  >>> actor.handleErrors = False
+
+  >>> actor.open("http://localhost/container/+/content1/")
+  >>> actor.getControl('Title').value = u'Test content'
+  >>> actor.getControl('Content short name').value = 'content1'
+  >>> actor.getControl(name='content.add.buttons.add').click()
+
+
+Edit Form
+=========
+
+
+Cancel button
+-------------
+
+  >>> actor.open("http://localhost/container/content1/context.html")
+  >>> actor.getControl(name="content.edit.buttons.cancel").click()
+  >>> actor.url
+  'http://localhost/container/content1/'
+
+
+Edit
+----
+
+  >>> actor.open("http://localhost/container/content1/context.html")
+
+default edit wizard steps
+
+  >>> print actor.contents
+  <html>
+  ...
+  <ul class="z-wizard-wizardsteps">
+     <li class="">
+        <a href="http://localhost/container/content1/context.html/view/">
+          View
+        </a>
+     </li>
+     <li class="z-wizard-selected">
+        <a href="http://localhost/container/content1/context.html/content/">
+          Content
+        </a>
+     </li>
+     <li class="">
+        <a href="http://localhost/container/content1/context.html/security/">
+          Security
+        </a>
+     </li>
+     <li class="">
+        <a href="http://localhost/container/content1/context.html/publish/">
+          Publish
+        </a>
+     </li>
+  </ul>
+  ...
+  </html>
+
+  actor.getControl(name='form.buttons.save').click()
+  print actor.contents
+  <html>
+  ...<div class="statusMessage">No changes were applied.</div>...
+  </html>
+
+Edit content
+
+  >>> actor.getControl('Title').value = u''
+  >>> actor.getControl(name="content.edit.buttons.save").click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+     Please fix indicated errors.
+  </div>
+  ...
+  <div class="z-form-field error">
+    <label for="content-widgets-title" title="Item title.">Title</label>
+       <span class="z-form-fieldRequired">&nbsp;</span>
+       <div class="error">Required input is missing.</div>
+  ...
+  </html>
+
+  >>> actor.getControl('Title').value = u'Test content 2'
+  >>> actor.getControl('URL').value = u'http://zojax.net/'
+  >>> actor.getControl(name='content.edit.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusMessage">Data successfully updated.</div>...
+  </html>
+
+  >>> actor.getControl(name='content.edit.buttons.savenext').click()
+  >>> actor.url
+  'http://localhost/container/content1/context.html/security/'
+
+  >>> actor.getLink('View').click()
+  >>> print actor.contents
+  <html>
+  ...
+  ...<h1 class="z-content-title">Test content 2</h1>...
+  ...
+  </html>
+
+
+Rename
+------
+
+  >>> actor.open("http://localhost/container/content1/context.html")
+  >>> actor.getControl('Short Name').value = u''
+  >>> actor.getControl(name='content.edit.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+    Please fix indicated errors.
+  ...
+  <label for="content-edit-widgets-shortname"
+             title="Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.">Short Name</label>
+  <div class="error">An empty name was provided. Names cannot be empty.</div>
+  ...
+  </html>
+
+  >>> actor.getControl('Short Name').value = u'content10'
+  >>> actor.getControl(name='content.edit.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusMessage">No changes were applied.</div>...
+  </html>
+
+  >>> print actor.url
+  http://localhost/container/content10/context.html/
+
+  >>> actor.getControl('Short Name').value = u'@cont$%#@ent10'
+  >>> actor.getControl(name='content.edit.buttons.save').click()
+  >>> print actor.contents
+  <html>
+  ...<div class="statusWarningMessage">
+     Please fix indicated errors.
+  ...
+  <div class="z-form-field error">
+      <label for="content-edit-widgets-shortname" title="Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.">Short Name</label>
+      <div class="error">Names cannot begin with '+' or '@' or contain '/'</div>
+      <div class="z-form-help">Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.</div>
+      <div>
+        <input id="content-edit-widgets-shortname"
+           name="content.edit.widgets.shortname"
+           class="text-widget textline-field"
+           value="@cont$%#@ent10" type="text" />
+    </div>
+  </div>
+  ...
+  </html>
+
+  >>> from zojax.content.type.interfaces import IRenameNotAllowed
+  >>> interface.directlyProvides(
+  ...     root['container']['content10'], IRenameNotAllowed)
+
+  >>> actor.open("http://localhost/container/content10/context.html")
+  >>> actor.getControl('Short Name')
+  Traceback (most recent call last):
+  ...
+  LookupError: label 'Short Name'
+
+  >>> interface.noLongerProvides(
+  ...     root['container']['content10'], IRenameNotAllowed)
+
+  >>> from zope.app.container.interfaces import IContainerNamesContainer
+  >>> interface.directlyProvides(root['container'], IContainerNamesContainer)
+
+  >>> actor.open("http://localhost/container/content10/context.html")
+  >>> actor.getControl('Short Name')
+  Traceback (most recent call last):
+  ...
+  LookupError: label 'Short Name'
+
+  >>> actor.getControl('Title').value = u'Test content 3'
+  >>> actor.getControl(name='content.edit.buttons.save').click()
+
+
+Change owner
+------------
+
+  >>> actor.open("http://localhost/container/content10/context.html")
+  >>> actor.getLink('Security').click()
+  >>> print actor.contents
+  <html>
+  ...
+  <h2>Content owner</h2><div class="z-form-fieldset">
+    Owner: <a href="changeowner.html" title="Change owner">User</a>
+  </div>
+  ...
+  </html>
+
+  actor.getLink('User').click()
+
+  actor.getControl(name='field.owner.MA__.searchstring').value = ['Manager']
+  actor.getControl(name="field.owner.MA__.search").click()
+  actor.getControl(name="field.owner.MA__.selection").value = ['em9wZS5tZ3I_']
+  actor.getControl(name="field.owner.MA__.apply").click()
+  actor.getControl(name="form.change").click()
+  print actor.contents
+  <html>...Content owner has been changed...</html>
+
+  from zojax.ownership.interfaces import IOwnership
+  IOwnership(container).ownerId
+  'zope.mgr'

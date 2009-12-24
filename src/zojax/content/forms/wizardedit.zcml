@@ -1,0 +1,64 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:zojax="http://namespaces.zope.org/zojax"
+   i18n_domain="zojax.content.forms">
+
+  <!-- edit content wizard -->
+  <zojax:pagelet
+     name="context.html"
+     for="zojax.content.type.interfaces.IContent"
+     class=".wizardedit.EditContentWizard"
+     allowed_attributes="actions upperContainer"
+     provides="zojax.wizard.interfaces.IWizardWithTabs"
+     permission="zope.View" />
+
+  <adapter factory=".wizardedit.EditContentRename" />
+  <adapter factory=".wizardedit.ContentNameValidator" />
+
+  <!-- edit wizard layout -->
+  <zojax:layout
+     layout="."
+     for=".interfaces.IEditContentWizard"
+     template="wizardlayout.pt"
+     class=".wizardlayout.WizardLayout" />
+
+  <!-- edit wizard layout -->
+  <zojax:layout
+     layout="."
+     for=".wizardedit.EditContentWizard"
+     view=".interfaces.IContentStep"
+     template="wizardedit.pt"
+     class=".wizardlayout.WizardLayout" />
+
+  <!-- edit wizard buttons -->
+  <adapter
+     name="previous"
+     provides="zojax.wizard.interfaces.IWizardButton"
+     for="* .wizardedit.EditContentWizard *"
+     factory=".wizardeditbuttons.previous" />
+
+  <adapter
+     name="savenext"
+     provides="zojax.wizard.interfaces.IWizardButton"
+     for="* .wizardedit.EditContentWizard *"
+     factory=".wizardeditbuttons.savenext" />
+
+  <adapter
+     name="next"
+     provides="zojax.wizard.interfaces.IWizardButton"
+     for="* .wizardedit.EditContentWizard *"
+     factory=".wizardeditbuttons.next" />
+
+  <adapter
+     name="save"
+     provides="zojax.wizard.interfaces.IWizardButton"
+     for="* .wizardedit.EditContentWizard *"
+     factory=".wizardeditbuttons.save" />
+
+  <adapter
+     name="cancel"
+     provides="zojax.wizard.interfaces.IWizardButton"
+     for="* .wizardedit.EditContentWizard *"
+     factory=".wizardeditbuttons.cancel" />
+
+</configure>
