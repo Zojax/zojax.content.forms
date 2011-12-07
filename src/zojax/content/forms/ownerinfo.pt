@@ -1,6 +1,6 @@
-<h2>Content owner</h2>
-<div class="z-form-fieldset" tal:define="owner view/getOwner">
-  Owner: <a href="changeowner.html" tal:content="owner/title"
+<h2 i18n:translate="">Content owner</h2>
+<div class="z-form-fieldset" tal:define="owner view/getOwner" i18n:translate="">
+  Owner: <a href="changeowner.html" i18n:name="title" tal:content="owner/title"
 	    title="Change owner" i18n:attributes="title"></a>
-  <div tal:content="owner/desc" tal:condition="owner/desc" />
+  <div tal:content="owner/desc" tal:condition="owner/desc" i18n:name="owner_desc"/>
 </div>

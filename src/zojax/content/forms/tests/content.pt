@@ -1,1 +1,1 @@
-<div>URL: <tal:block content="context/url" /></div>
+<div i18n:translate="">URL: <tal:block content="context/url" i18n:name="url"/></div>

@@ -1,4 +1,4 @@
-<div class="z-form-controls" i18n:domain="zojax.content.browser">
+<div class="z-form-controls" i18n:domain="zojax.content.forms">
   <hr />
   <div class="z-form-field" tal:condition="context/nameAllowed|nothing"
        tal:attributes="class python:context.nameError and 
