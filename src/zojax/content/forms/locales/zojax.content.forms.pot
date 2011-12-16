@@ -1,0 +1,154 @@
+##############################################################################
+#
+# Copyright (c) 2003-2004 Zope Corporation and Contributors.
+# All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+##############################################################################
+msgid ""
+msgstr ""
+"Project-Id-Version: Development/Unknown\n"
+"POT-Creation-Date: Thu Dec  8 22:36:37 2011\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Zope 3 Developers <zope3-dev@zope.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: zope/app/locales/extract.py\n"
+
+#: src/zojax/content/forms/content.py:35
+msgid "Content"
+msgstr ""
+
+#: src/zojax/content/forms/content.py:36
+msgid "Modify content"
+msgstr ""
+
+#: src/zojax/content/forms/form.py:102
+#: src/zojax/content/forms/form.py:194
+#: src/zojax/content/forms/wizardeditbuttons.py:52
+msgid "Cancel"
+msgstr ""
+
+#: src/zojax/content/forms/form.py:142
+msgid "Content has been successfully updated."
+msgstr ""
+
+#: src/zojax/content/forms/form.py:143
+#: src/zojax/content/forms/wizardedit.py:55
+msgid "Edit action has been canceled."
+msgstr ""
+
+#: src/zojax/content/forms/form.py:162
+#: src/zojax/content/forms/wizardeditbuttons.py:46
+msgid "Save"
+msgstr ""
+
+#: src/zojax/content/forms/form.py:48
+msgid "Content creation has been canceled."
+msgstr ""
+
+#: src/zojax/content/forms/form.py:84
+msgid "Add"
+msgstr ""
+
+#: src/zojax/content/forms/formaddbuttons.pt:6
+#: src/zojax/content/forms/formeditbuttons.pt:6
+msgid "Content short name"
+msgstr ""
+
+#: src/zojax/content/forms/formvalidator.py:30
+#: src/zojax/content/forms/wizardedit.py:175
+msgid "Content name already in use."
+msgstr ""
+
+#: src/zojax/content/forms/interfaces.py:65
+msgid "Short Name"
+msgstr ""
+
+#: src/zojax/content/forms/interfaces.py:66
+#: src/zojax/content/forms/formaddbuttons.pt:11
+#: src/zojax/content/forms/formeditbuttons.pt:10
+msgid "Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address."
+msgstr ""
+
+#: src/zojax/content/forms/owner.py:37
+msgid "Unknown principal"
+msgstr ""
+
+#: src/zojax/content/forms/owner.py:54
+msgid "Owner"
+msgstr ""
+
+#: src/zojax/content/forms/owner.py:55
+msgid "Select new owner for content."
+msgstr ""
+
+#: src/zojax/content/forms/owner.py:61
+msgid "Change content owner"
+msgstr ""
+
+#: src/zojax/content/forms/owner.py:81
+msgid "Back"
+msgstr ""
+
+#: src/zojax/content/forms/ownerinfo.pt:1
+msgid "Content owner"
+msgstr ""
+
+#: src/zojax/content/forms/ownerinfo.pt:3
+msgid "Change owner"
+msgstr ""
+
+#: src/zojax/content/forms/ownerinfo.pt:5
+msgid "Owner: ${title} ${owner_desc}"
+msgstr ""
+
+#: src/zojax/content/forms/presentation.py:27
+msgid "Presentation"
+msgstr ""
+
+#: src/zojax/content/forms/publish.py:32
+msgid "Publish"
+msgstr ""
+
+#: src/zojax/content/forms/publish.py:33
+msgid "Publish content"
+msgstr ""
+
+#: src/zojax/content/forms/security.py:26
+msgid "Security"
+msgstr ""
+
+#: src/zojax/content/forms/tests/content.pt:1
+msgid "URL: ${url}"
+msgstr ""
+
+#: src/zojax/content/forms/wizardedit.pt:3
+#: src/zojax/content/forms/wizardlayout.pt:3
+msgid "Up one level"
+msgstr ""
+
+#: src/zojax/content/forms/wizardedit.py:50
+msgid "Modify"
+msgstr ""
+
+#: src/zojax/content/forms/wizardeditbuttons.py:26
+msgid "Previous"
+msgstr ""
+
+#: src/zojax/content/forms/wizardeditbuttons.py:32
+msgid "Save & Next"
+msgstr ""
+
+#: src/zojax/content/forms/wizardeditbuttons.py:39
+msgid "Next"
+msgstr ""
+
