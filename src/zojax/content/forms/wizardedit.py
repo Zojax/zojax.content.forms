@@ -15,6 +15,8 @@
 
 $Id$
 """
+import string
+
 from zope import interface, component, schema, event
 from zope.proxy import sameProxiedObjects
 from zope.security import checkPermission
@@ -113,6 +115,9 @@ class EditContentWizard(WizardWithTabs):
         if 'shortname' in data:
             shortname = data['shortname']
             if shortname != context.__name__:
+                valid_chars = "-%s%s" % (string.lowercase, string.digits)
+                shortname = shortname.lower()
+                shortname = ''.join(c for c in shortname if c in valid_chars)
                 renamer = IContainerItemRenamer(context.__parent__)
                 renamer.renameItem(context.__name__, shortname)
                 event.notify(ObjectModifiedEvent(context))
