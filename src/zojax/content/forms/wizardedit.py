@@ -210,7 +210,9 @@ class ContentNameValidator(validator.InvariantsValidator):
             return super(ContentNameValidator, self).validate(data)
 
         context = self.view.context
-        shortname = data.get('shortname')
+        shortname = data.get('shortname').lower()
+        valid_chars = "-.%s%s" % (string.lowercase, string.digits)
+        shortname = ''.join(c for c in shortname if c in valid_chars)
 
         if shortname == context.__name__:
             return super(ContentNameValidator, self).validate(data)
