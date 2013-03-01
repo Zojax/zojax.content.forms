@@ -125,6 +125,10 @@ class EditContentWizard(WizardWithTabs):
                     event.notify(ObjectModifiedEvent(context))
 
                 context = context.__parent__[shortname]
+                if '<div class="statusMessage">No changes were applied.</div>\n' in IStatusMessage(self.request).messages()[0] \
+                and len(IStatusMessage(self.request).messages()) == 1:
+                    IStatusMessage(self.request).clear()
+                IStatusMessage(self.request).add(_('Short name have been changed'))
                 self.redirect(
                     '%s/%s/'%(absoluteURL(context, request), self.__name__))
 
