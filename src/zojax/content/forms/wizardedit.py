@@ -18,9 +18,8 @@ $Id$
 import string
 
 from zope import interface, component, schema, event
-from zope.proxy import sameProxiedObjects
+from zope.proxy import sameProxiedObjects, removeAllProxies
 from zope.security import checkPermission
-from zope.component import getMultiAdapter
 from zope.component import queryMultiAdapter
 from zope.traversing.browser import absoluteURL
 from zope.traversing.interfaces import IContainmentRoot
@@ -38,8 +37,8 @@ from zojax.wizard import WizardWithTabs
 from zojax.layoutform import button, Fields
 from zojax.layoutform.interfaces import ISaveAction
 from zojax.statusmessage.interfaces import IStatusMessage
-from zojax.content.type.interfaces import \
-    IContentContainer, IContentViewView, IRenameNotAllowed, IContentNamesContainer
+from zojax.content.type.interfaces import IContentContainer, \
+    IContentViewView, IRenameNotAllowed, IContentNamesContainer
 
 from content import ContentStep
 from interfaces import _, IRedirectView
@@ -120,26 +119,33 @@ class EditContentWizard(WizardWithTabs):
                 shortname = ''.join(c for c in shortname if c in valid_chars)
                 data['shortname'] = shortname
                 if shortname != context.__name__:
-                    renamer = IContainerItemRenamer(context.__parent__)
+                    renamer = IContainerItemRenamer(
+                        removeAllProxies(context.__parent__))
                     renamer.renameItem(context.__name__, shortname)
                     event.notify(ObjectModifiedEvent(context))
 
                 context = context.__parent__[shortname]
                 if '<div class="statusMessage">No changes were applied.</div>\n' in IStatusMessage(self.request).messages()[0] \
-                and len(IStatusMessage(self.request).messages()) == 1:
+                    and len(IStatusMessage(self.request).messages()) == 1:
                     IStatusMessage(self.request).clear()
-                IStatusMessage(self.request).add(_('Short name have been changed'))
+                IStatusMessage(self.request).add(
+                    _('Short name have been changed')
+                )
                 self.redirect(
-                    '%s/%s/'%(absoluteURL(context, request), self.__name__))
+                    '%s/%s/' % (
+                        absoluteURL(context.__parent__, request),
+                        self.__name__
+                    )
+                )
 
     def cancelURL(self):
         viewName = queryMultiAdapter(
             (self.context, self.request), IContentViewView)
         if viewName is not None:
-            return '%s/%s'%(
+            return '%s/%s' % (
                 absoluteURL(self.context, self.request), viewName.name)
         else:
-            return '%s/'%absoluteURL(self.context, self.request)
+            return '%s/' % absoluteURL(self.context, self.request)
 
     def hasViewStep(self):
         return 'view' in self.stepsByName
@@ -159,13 +165,16 @@ class EditContentWizard(WizardWithTabs):
                 url = absoluteURL(parent, request)
 
                 if checkPermission('zojax.ModifyContent', parent):
-                    return '%s/@@context.html'%url
+                    return '%s/@@context.html' % url
 
-                viewName = queryMultiAdapter((parent,request), IContentViewView)
+                viewName = queryMultiAdapter(
+                    (parent, request),
+                    IContentViewView
+                )
                 if viewName:
-                    return '%s/%s'%(url, viewName.name)
+                    return '%s/%s' % (url, viewName.name)
 
-                return '%s/'%url
+                return '%s/' % url
             else:
                 parent = getattr(parent, '__parent__', None)
 
@@ -222,7 +231,7 @@ class ContentNameValidator(validator.InvariantsValidator):
             return super(ContentNameValidator, self).validate(data)
 
         errors = []
-        chooser =  INameChooser(context.__parent__)
+        chooser = INameChooser(context.__parent__)
 
         try:
             chooser.checkName(shortname, None)
