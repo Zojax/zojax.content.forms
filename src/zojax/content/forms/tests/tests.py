@@ -1,3 +1,4 @@
+
 ##############################################################################
 #
 # Copyright (c) 2009 Zope Foundation and Contributors.
@@ -16,6 +17,14 @@
 $Id$
 """
 import os, unittest, doctest
+from zope import interface, component, event
+from zope.app.testing import functional
+from zope.app.component.hooks import setSite
+from zope.app.intid import IntIds
+from zope.app.intid.interfaces import IIntIds
+from zope.security.management import newInteraction, endInteraction
+from zojax.catalog.catalog import Catalog, ICatalog
+from zojax.content.type.interfaces import INameChooserConfiglet
 from zope.app.rotterdam import Rotterdam
 from zope.app.testing.functional import ZCMLLayer
 from zope.app.testing.functional import FunctionalDocFileSuite
@@ -31,16 +40,59 @@ class IDefaultSkin(ILayoutFormLayer, Rotterdam):
     """ skin """
 
 
+def FunctionalDocFileSuite(*paths, **kw):
+    layer = zojaxContentFormsLayer
+
+    globs = kw.setdefault('globs', {})
+    globs['http'] = functional.HTTPCaller()
+    globs['getRootFolder'] = functional.getRootFolder
+    globs['sync'] = functional.sync
+
+    kw['package'] = doctest._normalize_module(kw.get('package'))
+
+    kwsetUp = kw.get('setUp')
+    def setUp(test):
+        functional.FunctionalTestSetup().setUp()
+
+        newInteraction()
+
+        root = functional.getRootFolder()
+        setSite(root)
+        sm = root.getSiteManager()
+        sm.getUtility(INameChooserConfiglet).short_url_enabled = True
+
+        # IIntIds
+        root['ids'] = IntIds()
+        sm.registerUtility(root['ids'], IIntIds)
+        root['ids'].register(root)
+
+        # catalog
+        root['catalog'] = Catalog()
+        sm.registerUtility(root['catalog'], ICatalog)
+
+        endInteraction()
+
+    kw['setUp'] = setUp
+
+    kwtearDown = kw.get('tearDown')
+    def tearDown(test):
+        setSite(None)
+        functional.FunctionalTestSetup().tearDown()
+
+    kw['tearDown'] = tearDown
+
+    if 'optionflags' not in kw:
+        old = doctest.set_unittest_reportflags(0)
+        doctest.set_unittest_reportflags(old)
+        kw['optionflags'] = (old|doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
+
+    suite = doctest.DocFileSuite(*paths, **kw)
+    suite.layer = layer
+    return suite
+
+
 def test_suite():
-    forms = FunctionalDocFileSuite(
-        "forms.txt",
-        optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
-    forms.layer = zojaxContentFormsLayer
-
-    editform = FunctionalDocFileSuite(
-        "wizardedit.txt",
-        optionflags=doctest.ELLIPSIS|doctest.NORMALIZE_WHITESPACE)
-    editform.layer = zojaxContentFormsLayer
-
     return unittest.TestSuite((
-            forms, editform, ))
+            FunctionalDocFileSuite("forms.txt"),
+            FunctionalDocFileSuite("wizardedit.txt"),
+            ))

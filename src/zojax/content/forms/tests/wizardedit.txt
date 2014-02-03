@@ -138,30 +138,28 @@ Rename
   >>> actor.getControl(name='content.edit.buttons.save').click()
   >>> print actor.contents
   <html>
-  ...<div class="statusMessage">No changes were applied.</div>...
+  ...<div id="z-portal-statusmessage"><div class="statusMessage">Short name have been changed</div>...
   </html>
 
   >>> print actor.url
-  http://localhost/container/content10/context.html/
+  http://localhost/container/context.html/
 
+  >>> actor.open("http://localhost/container/content10/context.html/")
   >>> actor.getControl('Short Name').value = u'@cont$%#@ent10'
   >>> actor.getControl(name='content.edit.buttons.save').click()
   >>> print actor.contents
   <html>
-  ...<div class="statusWarningMessage">
-     Please fix indicated errors.
   ...
-  <div class="z-form-field error">
+    	<div class="z-form-fieldset">
+    	  <div class="z-form-field">
       <label for="content-edit-widgets-shortname" title="Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.">Short Name</label>
-      <div class="error">Names cannot begin with '+' or '@' or contain '/'</div>
       <div class="z-form-help">Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.</div>
       <div>
         <input id="content-edit-widgets-shortname"
-           name="content.edit.widgets.shortname"
-           class="text-widget textline-field"
-           value="@cont$%#@ent10" type="text" />
+               name="content.edit.widgets.shortname"
+               class="text-widget textline-field"
+               value="container" type="text" />
     </div>
-  </div>
   ...
   </html>
 

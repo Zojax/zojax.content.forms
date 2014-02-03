@@ -52,6 +52,7 @@
   <grant permission="zojax.AddContent1" principal="zope.user" />
   <grant permission="zojax.changeOwnership" principal="zope.user" />
 
+  <grant role="content.Owner" permission="zope.ManageContent" />
   <grant role="content.Owner" permission="zojax.ModifyContent" />
   <grant role="content.Owner" permission="zojax.DeleteContent" />
 
